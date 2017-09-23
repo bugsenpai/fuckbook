@@ -11,7 +11,6 @@ const puppeteer = require('puppeteer');
       '--window-size=1280,900',
     ],
     headless: false,
-    slowMo: 100,
   });
 
   const page = await browser.newPage();
@@ -45,6 +44,24 @@ const puppeteer = require('puppeteer');
   await page.goto(`https://www.facebook.com/${PROFILE_URL}/allactivity`);
   await page.screenshot({
     path: 'screenshots/03-activity-log.png',
+  });
+
+
+  const editButtons = await page.$$('a[data-tooltip-content="Edit"]');
+
+  await editButtons[0].click();
+
+  await page.waitFor('.__MenuItem');
+  const menuButton = await page.$eval('.__MenuItem', el => el.innerText);
+  console.log(menuButton)
+  //const menuButtons = await page.$$('.__MenuItem');
+  //for (menuButton of menuButtons) {
+    //const text = page.$eval()
+  //}
+  //await unlikeButton.click();
+
+  await page.screenshot({
+    path: 'screenshots/04-unlike.png',
   });
 
   await browser.close();
