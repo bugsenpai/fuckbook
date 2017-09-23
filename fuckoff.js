@@ -1,6 +1,6 @@
 const EMAIL = process.env.FUCKBOOK_EMAIL;
 const PASSWORD = process.env.FUCKBOOK_PASSWORD;
-
+const PROFILE_URL = process.env.FUCKBOOK_PROFILE_URL;
 
 const puppeteer = require('puppeteer');
 
@@ -37,10 +37,14 @@ const puppeteer = require('puppeteer');
 
   const loginButton = await page.$('label#loginbutton input');
   await loginButton.click();
-  await page.$('.homeSideNav');
-
+  await page.waitFor('.fbUserContent');
   await page.screenshot({
     path: 'screenshots/02-logged-in.png',
+  });
+
+  await page.goto(`https://www.facebook.com/${PROFILE_URL}/allactivity`);
+  await page.screenshot({
+    path: 'screenshots/03-activity-log.png',
   });
 
   await browser.close();
