@@ -1,3 +1,5 @@
+/* globals document, XPathResult */
+
 const EMAIL = process.env.FUCKBOOK_EMAIL;
 const PASSWORD = process.env.FUCKBOOK_PASSWORD;
 const PROFILE_URL = process.env.FUCKBOOK_PROFILE_URL;
@@ -42,23 +44,35 @@ const puppeteer = require('puppeteer');
   });
 
   await page.goto(`https://www.facebook.com/${PROFILE_URL}/allactivity`);
+
+  let editButton = await page.$('a[data-tooltip-content="Edit"]');
   await page.screenshot({
     path: 'screenshots/03-activity-log.png',
   });
 
+  while (editButton) {
+    editButton = await page.$('a[data-tooltip-content="Edit"]');
+    await editButton.click();
+    await page.waitFor('.__MenuItem');
+    await page.evaluate(() => {
+      const query = document.evaluate(
+        '//*[text()="Unlike" or text()="Delete"]',
+        document,
+        null,
+        XPathResult.ANY_TYPE,
+        null,
+      );
+      const unlikeItem = query.iterateNext();
+      if (!unlikeItem) {
+        return Promise(1);
+      }
 
-  const editButtons = await page.$$('a[data-tooltip-content="Edit"]');
-
-  await editButtons[0].click();
-
-  await page.waitFor('.__MenuItem');
-  const menuButton = await page.$eval('.__MenuItem', el => el.innerText);
-  console.log(menuButton)
-  //const menuButtons = await page.$$('.__MenuItem');
-  //for (menuButton of menuButtons) {
-    //const text = page.$eval()
-  //}
-  //await unlikeButton.click();
+      unlikeItem.click();
+      return Promise((resolve) => {
+        setTimeout(resolve, 2000);
+      });
+    });
+  }
 
   await page.screenshot({
     path: 'screenshots/04-unlike.png',
